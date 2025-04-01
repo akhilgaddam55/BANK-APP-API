@@ -14,6 +14,10 @@ const swaggerOptions = {
         url: ' http://localhost:9000/api/v1',
         description: 'Local development server',
       },
+      {
+        "url": "https://bank-app-api-6to9.onrender.com/api/v1",
+        "description": "Production server For API hosted on Render"
+      }
     ],
     components: {
       securitySchemes: {
