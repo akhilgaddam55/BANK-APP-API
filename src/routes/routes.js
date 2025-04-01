@@ -89,7 +89,7 @@ routes.post('/auth/signUp', Authentication.signUp);
  * @swagger
  * /accounts/create:
  *   post:
- *     summary: Create a new account
+ *     summary: Create a new Bank account
  *     description: Creates a new bank account for a user.
  *     tags: [Accounts]
  *     security:
