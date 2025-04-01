@@ -123,33 +123,6 @@ routes.post('/auth/signUp', Authentication.signUp);
  */
 routes.post("/accounts/create", authenticate, AccountController.createAccount);
 
-/**
- * @swagger
- * /accounts/{accountId}:
- *   get:
- *     summary: Get account details
- *     description: Fetches details of a specific account.
- *     tags: [Accounts]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: accountId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the account.
- *     responses:
- *       200:
- *         description: Returns account details.
- *       403:
- *         description: Account is locked.
- *       404:
- *         description: Account not found.
- *       500:
- *         description: Internal server error.
- */
-routes.get("/accounts/:accountId", authenticate, AccountController.getAccountDetails);
 
 /**
  * @swagger
@@ -176,121 +149,6 @@ routes.get("/accounts/:accountId", authenticate, AccountController.getAccountDet
  *         description: Internal server error.
  */
 routes.get("/accounts/:accountId/balance", authenticate, AccountController.getBalance);
-
-/**
- * @swagger
- * /accounts/{accountId}/lock:
- *   put:
- *     summary: Lock an account
- *     description: Locks an account to prevent transactions.
- *     tags: [Accounts]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: accountId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the account.
- *     responses:
- *       200:
- *         description: Account locked successfully.
- *       404:
- *         description: Account not found.
- *       500:
- *         description: Internal server error.
- */
-routes.put("/accounts/:accountId/lock", authenticate, AccountController.lockAccount);
-
-/**
- * @swagger
- * /accounts/{accountId}/unlock:
- *   put:
- *     summary: Unlock an account
- *     description: Unlocks a locked account.
- *     tags: [Accounts]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: accountId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the account.
- *     responses:
- *       200:
- *         description: Account unlocked successfully.
- *       404:
- *         description: Account not found.
- *       400:
- *         description: Account is already active.
- *       500:
- *         description: Internal server error.
- */
-routes.put("/accounts/:accountId/unlock", authenticate, AccountController.unlockAccount);
-
-/**
- * @swagger
- * /accounts:
- *   get:
- *     summary: Get all accounts
- *     description: Retrieves a list of all accounts.
- *     tags: [Accounts]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Returns all accounts.
- *       404:
- *         description: No accounts found.
- *       500:
- *         description: Internal server error.
- */
-routes.get("/accounts", authenticate, AccountController.getAllAccounts);
-
-/**TRANSACTIONS */
-/**
- * @swagger
- * /transactions:
- *   get:
- *     summary: Retrieve all transactions
- *     description: Fetch a list of all transactions from the database.
- *     tags:
- *       - Transactions
- *     responses:
- *       200:
- *         description: A list of transactions.
- *       500:
- *         description: Internal server error.
- */
-routes.get("/transactions", TransactionsController.getAllTransactions);
-
-/**
- * @swagger
- * /transactions/{accountId}:
- *   get:
- *     summary: Retrieve transactions for a specific account
- *     description: Fetch all transactions related to a given account.
- *     tags:
- *       - Transactions
- *     parameters:
- *       - in: path
- *         name: accountId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the account to fetch transactions for.
- *     responses:
- *       200:
- *         description: A list of transactions for the account.
- *       404:
- *         description: No transactions found.
- *       500:
- *         description: Internal server error.
- */
-routes.get("/transactions/:accountId",authenticate, TransactionsController.getTransactionsByAccount);
 
 /**
  * @swagger
@@ -363,43 +221,5 @@ routes.post("/transactions/deposit", authenticate, TransactionsController.deposi
  *         description: Internal server error.
  */
 routes.post("/transactions/withdraw", authenticate, TransactionsController.withdraw);
-
-/**
- * @swagger
- * /transactions/transfer:
- *   post:
- *     summary: Transfer money between accounts
- *     description: Moves money from one account to another.
- *     tags:
- *       - Transactions
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - fromAccountId
- *               - toAccountId
- *               - amount
- *             properties:
- *               fromAccountId:
- *                 type: string
- *                 description: The ID of the sender's account.
- *               toAccountId:
- *                 type: string
- *                 description: The ID of the recipient's account.
- *               amount:
- *                 type: number
- *                 description: Amount to be transferred.
- *     responses:
- *       201:
- *         description: Transfer successful.
- *       400:
- *         description: Insufficient balance or invalid input.
- *       500:
- *         description: Internal server error.
- */
-routes.post("/transactions/transfer",authenticate, TransactionsController.transfer);
 
 export default routes;
