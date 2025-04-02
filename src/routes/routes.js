@@ -3,7 +3,51 @@ const routes = Router();
 import Authentication from '../middlewares/Authentication.js';
 import authenticate from '../middlewares/authenticate.js';
 import AccountController from '../Controllers/AccountManagement.js';
+import { graphqlHTTP } from 'express-graphql';
+import { buildSchema } from 'graphql';
 import TransactionsController from "../Controllers/TransactionsManagement.js";
+
+const schema = buildSchema(`
+    type Query {
+      getAccountBalance(accountId: String!): Float
+    }
+
+    type Mutation {
+      createAccount(userId: String!, accountType: String!, currency: String): Account
+      depositMoney(accountId: String!, amount: Float!): Transaction
+      withdrawMoney(accountId: String!, amount: Float!): Transaction
+    }
+
+    type Account {
+      accountId: String
+      userId: String
+      accountType: String
+      currency: String
+    }
+
+    type Transaction {
+      transactionId: String
+      accountId: String
+      amount: Float
+      transactionType: String
+      date: String
+    }
+`);
+
+const root = {
+  createAccount: async ({ userId, accountType, currency }) => {
+    return AccountController.createAccount({ userId, accountType, currency });
+  },
+  getAccountBalance: async ({ accountId }) => {
+    return AccountController.getBalanceById(accountId);
+  },
+  depositMoney: async ({ accountId, amount }) => {
+    return TransactionsController.deposit(accountId, amount);
+  },
+  withdrawMoney: async ({ accountId, amount }) => {
+    return TransactionsController.withdraw(accountId, amount);
+  },
+};
 
 /**
  * @swagger
@@ -221,5 +265,56 @@ routes.post("/transactions/deposit", authenticate, TransactionsController.deposi
  *         description: Internal server error.
  */
 routes.post("/transactions/withdraw", authenticate, TransactionsController.withdraw);
+
+/**
+ * @swagger
+ * tags:
+ *   - name: GRAPHQL
+ *     description: GraphQL endpoint for interacting with accounts and transactions.
+ * 
+ * # Test the GraphQL API using Postman
+ * /graphql-test:
+ *   get:
+ *     summary: Test the GraphQL API using Postman
+ *     description: Provides step-by-step instructions for testing GraphQL queries and mutations using Postman.
+ *     tags: [GRAPHQL]
+ *     responses:
+ *       200:
+ *         description: Instructions for testing GraphQL in Postman.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 instructions:
+ *                   type: string
+ *                   example: |
+ *                     Step-by-step guide to test the GraphQL API in Postman:
+ *                     1. Open Postman and create a new **POST** request.
+ *                     2. Set the URL to the GraphQL endpoint, e.g., `http://localhost:9000/graphql`.
+ *                     3. Go to the **Body** tab and select the **raw** option.
+ *                     4. Choose **JSON** from the dropdown next to raw.
+ *                     5. In the request body, enter your GraphQL query or mutation. For example:
+ *                        ```json
+ *                        {
+ *                          "query": "{ getAccountBalance(accountId: \"1234\") }"
+ *                        }
+ *                        ```
+ *                     6. Click **Send** to execute the query.
+ *                     7. View the response in Postman, which should be a JSON object with the result of your query:
+ *                        ```json
+ *                        {
+ *                          "data": {
+ *                            "getAccountBalance": 500.0
+ *                          }
+ *                        }
+ *                        ```
+ */
+routes.use('/graphql', graphqlHTTP({
+    schema: schema,
+    rootValue: root,
+    graphiql: true, 
+  }));
+  
 
 export default routes;
