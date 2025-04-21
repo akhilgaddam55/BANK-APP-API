@@ -3,51 +3,7 @@ const routes = Router();
 import Authentication from '../middlewares/Authentication.js';
 import authenticate from '../middlewares/authenticate.js';
 import AccountController from '../Controllers/AccountManagement.js';
-import { graphqlHTTP } from 'express-graphql';
-import { buildSchema } from 'graphql';
 import TransactionsController from "../Controllers/TransactionsManagement.js";
-
-const schema = buildSchema(`
-    type Query {
-      getAccountBalance(accountId: String!): Float
-    }
-
-    type Mutation {
-      createAccount(userId: String!, accountType: String!, currency: String): Account
-      depositMoney(accountId: String!, amount: Float!): Transaction
-      withdrawMoney(accountId: String!, amount: Float!): Transaction
-    }
-
-    type Account {
-      accountId: String
-      userId: String
-      accountType: String
-      currency: String
-    }
-
-    type Transaction {
-      transactionId: String
-      accountId: String
-      amount: Float
-      transactionType: String
-      date: String
-    }
-`);
-
-const root = {
-  createAccount: async ({ userId, accountType, currency }) => {
-    return AccountController.createAccount({ userId, accountType, currency });
-  },
-  getAccountBalance: async ({ accountId }) => {
-    return AccountController.getBalanceById(accountId);
-  },
-  depositMoney: async ({ accountId, amount }) => {
-    return TransactionsController.deposit(accountId, amount);
-  },
-  withdrawMoney: async ({ accountId, amount }) => {
-    return TransactionsController.withdraw(accountId, amount);
-  },
-};
 
 /**
  * @swagger
@@ -133,7 +89,7 @@ routes.post('/auth/signUp', Authentication.signUp);
  * @swagger
  * /accounts/create:
  *   post:
- *     summary: Create a new Bank account
+ *     summary: Create a new account
  *     description: Creates a new bank account for a user.
  *     tags: [Accounts]
  *     security:
@@ -167,6 +123,33 @@ routes.post('/auth/signUp', Authentication.signUp);
  */
 routes.post("/accounts/create", authenticate, AccountController.createAccount);
 
+/**
+ * @swagger
+ * /accounts/{accountId}:
+ *   get:
+ *     summary: Get account details
+ *     description: Fetches details of a specific account.
+ *     tags: [Accounts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the account.
+ *     responses:
+ *       200:
+ *         description: Returns account details.
+ *       403:
+ *         description: Account is locked.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+routes.get("/accounts/:accountId", authenticate, AccountController.getAccountDetails);
 
 /**
  * @swagger
@@ -193,6 +176,121 @@ routes.post("/accounts/create", authenticate, AccountController.createAccount);
  *         description: Internal server error.
  */
 routes.get("/accounts/:accountId/balance", authenticate, AccountController.getBalance);
+
+/**
+ * @swagger
+ * /accounts/{accountId}/lock:
+ *   put:
+ *     summary: Lock an account
+ *     description: Locks an account to prevent transactions.
+ *     tags: [Accounts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the account.
+ *     responses:
+ *       200:
+ *         description: Account locked successfully.
+ *       404:
+ *         description: Account not found.
+ *       500:
+ *         description: Internal server error.
+ */
+routes.put("/accounts/:accountId/lock", authenticate, AccountController.lockAccount);
+
+/**
+ * @swagger
+ * /accounts/{accountId}/unlock:
+ *   put:
+ *     summary: Unlock an account
+ *     description: Unlocks a locked account.
+ *     tags: [Accounts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the account.
+ *     responses:
+ *       200:
+ *         description: Account unlocked successfully.
+ *       404:
+ *         description: Account not found.
+ *       400:
+ *         description: Account is already active.
+ *       500:
+ *         description: Internal server error.
+ */
+routes.put("/accounts/:accountId/unlock", authenticate, AccountController.unlockAccount);
+
+/**
+ * @swagger
+ * /accounts:
+ *   get:
+ *     summary: Get all accounts
+ *     description: Retrieves a list of all accounts.
+ *     tags: [Accounts]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Returns all accounts.
+ *       404:
+ *         description: No accounts found.
+ *       500:
+ *         description: Internal server error.
+ */
+routes.get("/user-accounts/:userId", authenticate, AccountController.getUsersAccounts);
+
+/**TRANSACTIONS */
+/**
+ * @swagger
+ * /transactions:
+ *   get:
+ *     summary: Retrieve all transactions
+ *     description: Fetch a list of all transactions from the database.
+ *     tags:
+ *       - Transactions
+ *     responses:
+ *       200:
+ *         description: A list of transactions.
+ *       500:
+ *         description: Internal server error.
+ */
+routes.get("/transactions/:userId", TransactionsController.getAllTransactions);
+
+/**
+ * @swagger
+ * /transactions/{accountId}:
+ *   get:
+ *     summary: Retrieve transactions for a specific account
+ *     description: Fetch all transactions related to a given account.
+ *     tags:
+ *       - Transactions
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the account to fetch transactions for.
+ *     responses:
+ *       200:
+ *         description: A list of transactions for the account.
+ *       404:
+ *         description: No transactions found.
+ *       500:
+ *         description: Internal server error.
+ */
+routes.get("/transactions/:accountId", TransactionsController.getTransactionsByAccount);
 
 /**
  * @swagger
@@ -230,7 +328,7 @@ routes.get("/accounts/:accountId/balance", authenticate, AccountController.getBa
  *       500:
  *         description: Internal server error.
  */
-routes.post("/transactions/deposit", authenticate, TransactionsController.deposit);
+routes.post("/transactions/deposit", TransactionsController.deposit);
 
 /**
  * @swagger
@@ -264,57 +362,48 @@ routes.post("/transactions/deposit", authenticate, TransactionsController.deposi
  *       500:
  *         description: Internal server error.
  */
-routes.post("/transactions/withdraw", authenticate, TransactionsController.withdraw);
+routes.post("/transactions/withdraw", TransactionsController.withdraw);
 
 /**
  * @swagger
- * tags:
- *   - name: GRAPHQL
- *     description: GraphQL endpoint for interacting with accounts and transactions.
- * 
- * # Test the GraphQL API using Postman
- * /graphql-test:
- *   get:
- *     summary: Test the GraphQL API using Postman
- *     description: Provides step-by-step instructions for testing GraphQL queries and mutations using Postman.
- *     tags: [GRAPHQL]
+ * /transactions/transfer:
+ *   post:
+ *     summary: Transfer money between accounts
+ *     description: Moves money from one account to another.
+ *     tags:
+ *       - Transactions
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromAccountId
+ *               - toAccountId
+ *               - amount
+ *             properties:
+ *               fromAccountId:
+ *                 type: string
+ *                 description: The ID of the sender's account.
+ *               toAccountId:
+ *                 type: string
+ *                 description: The ID of the recipient's account.
+ *               amount:
+ *                 type: number
+ *                 description: Amount to be transferred.
  *     responses:
- *       200:
- *         description: Instructions for testing GraphQL in Postman.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 instructions:
- *                   type: string
- *                   example: |
- *                     Step-by-step guide to test the GraphQL API in Postman:
- *                     1. Open Postman and create a new **POST** request.
- *                     2. Set the URL to the GraphQL endpoint, e.g., `http://localhost:9000/graphql`.
- *                     3. Go to the **Body** tab and select the **raw** option.
- *                     4. Choose **JSON** from the dropdown next to raw.
- *                     5. In the request body, enter your GraphQL query or mutation. For example:
- *                        ```json
- *                        {
- *                          "query": "{ getAccountBalance(accountId: \"1234\") }"
- *                        }
- *                        ```
- *                     6. Click **Send** to execute the query.
- *                     7. View the response in Postman, which should be a JSON object with the result of your query:
- *                        ```json
- *                        {
- *                          "data": {
- *                            "getAccountBalance": 500.0
- *                          }
- *                        }
- *                        ```
+ *       201:
+ *         description: Transfer successful.
+ *       400:
+ *         description: Insufficient balance or invalid input.
+ *       500:
+ *         description: Internal server error.
  */
-routes.use('/graphql', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true, 
-  }));
-  
+routes.post("/transactions/transfer", TransactionsController.transfer);
+
+routes.get('/dashboard/:userId', AccountController.getUsersDashboard);
+
+routes.get("/alerts/:email", authenticate, AccountController.getUsersAlerts);
 
 export default routes;
