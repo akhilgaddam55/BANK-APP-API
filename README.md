@@ -27,9 +27,9 @@ A secure banking API for user accounts, transactions, and authentication built w
 ## API Features
 
 1. **User Authentication**
-   - Registration with email verification
+   - Registration with email and password
    - JWT-based login/logout
-   - Password reset functionality
+     
 
 2. **Account Management**
    - Create/view/update user profiles
