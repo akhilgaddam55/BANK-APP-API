@@ -42,7 +42,6 @@ A secure banking API for user accounts, transactions, and authentication built w
    - Deposit/withdrawal operations
 
 4. **Security**
-   - Rate limiting
    - Input validation
    - Secure password hashing (bcrypt)
 
@@ -54,7 +53,6 @@ A secure banking API for user accounts, transactions, and authentication built w
 |----------|--------|-------------|
 | `/auth/register` | POST | Register new user |
 | `/auth/login` | POST | User login |
-| `/auth/logout` | POST | Invalidate JWT token |
 
 ### Accounts
 
@@ -73,9 +71,8 @@ A secure banking API for user accounts, transactions, and authentication built w
 | `/transactions/account/{accountId}` | GET | Get account transactions |
 
 ## Third party API INTEGRATIONS
-# Third Party Integration Documentation
 
-This document provides a simple guide for integrating third-party services in a React component, as demonstrated with the example of fetching exchange rates from a third-party API and exporting data using a third-party CSV generation library.
+
 
 ## Table of Contents
 
