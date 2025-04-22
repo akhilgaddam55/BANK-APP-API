@@ -72,6 +72,34 @@ A secure banking API for user accounts, transactions, and authentication built w
 | `/transactions/{id}` | GET | Get transaction details |
 | `/transactions/account/{accountId}` | GET | Get account transactions |
 
+## Third party API INTEGRATIONS
+# Third Party Integration Documentation
+
+This document provides a simple guide for integrating third-party services in a React component, as demonstrated with the example of fetching exchange rates from a third-party API and exporting data using a third-party CSV generation library.
+
+## Table of Contents
+
+- [Dependencies](#dependencies)
+- [Fetching Exchange Rates](#fetching-exchange-rates)
+- [Displaying Data](#displaying-data)
+- [CSV Export Functionality](#csv-export-functionality)
+
+---
+
+## Dependencies
+
+The following third-party packages are used in this example:
+
+## Fetching Exchange Rates
+
+The data is fetched from an external API, `https://api.exchangeratesapi.io/v1/latest`, which provides real-time exchange rates. We fetch the exchange rates for various currencies and format them to display the rate against Indian Rupees (INR). The process is as follows:
+
+1. **API URL**: The API URL used in this example is `https://api.exchangeratesapi.io/v1/latest?access_key=c4aace06d49151f5f0c6c6fbb7316094`, where the `access_key` is an API key required for accessing the service.
+   
+2. **Processing Response**:
+   - The response is parsed as JSON.
+   - The base rate for INR is extracted, and other rates are normalized to INR.
+
 ## Setup Instructions
 
 ### Local Development
