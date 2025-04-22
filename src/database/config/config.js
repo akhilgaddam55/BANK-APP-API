@@ -45,24 +45,26 @@ const databaseConfig = {
     },
   },
   production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    node_env: process.env.NODE_ENV,
-    requestTimeout: 300000000,
-    dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
-    },
-    timezone: 'UTC',
-    pool: {
-      max: 300,
-      min: 5,
-      acquire: 60000,
-      idle: 20000,
-    },
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  host: process.env.DB_HOST,
+  dialect: 'postgres',
+  port: process.env.DB_PORT, 
+  dialectOptions: {
+    ssl: { 
+      require: true,
+      rejectUnauthorized: false
+    }
   },
+  logging: false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  }
+}
 };
 
 export default databaseConfig;
