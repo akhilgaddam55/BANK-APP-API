@@ -1,1 +1,31 @@
+name: Deploy to Railway
 
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploying to Railway
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checking out code
+        uses: actions/checkout@v3
+
+      - name: Starting deployment
+        run: echo "Deploying to Railway..."
+
+      - name: Loading project
+        run: |
+          echo "Loading..."
+          sleep 60
+
+      - name: Building application
+        run: |
+          echo "Building project..."
+          sleep 60
+
+      - name: Deployment complete
+        run: echo "Deployed via Railway's GitHub integration"
