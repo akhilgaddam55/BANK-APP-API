@@ -90,12 +90,12 @@ PORT=3000
 JWT_SECRET=your_secure_jwt_secret_32chars_min
 
 # Database
--DB_USER=postgres
--DB_PASSWORD=your_postgres_password
--DB_DATABASE=bank_app_dev
--DB_HOST=localhost
--DB_PORT=5432
--DB_SSL=false
+- DB_USER=postgres
+- DB_PASSWORD=your_postgres_password
+- DB_DATABASE=bank_app_dev
+- DB_HOST=localhost
+- DB_PORT=5432
+- DB_SSL=false
 
 4. Run Migration
  ```npm run migrate all```
